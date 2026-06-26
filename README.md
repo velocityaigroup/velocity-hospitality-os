@@ -34,6 +34,8 @@ Inputs → Agents → Human Approval → Actions → Systems → Reporting → (
 
 **Human-in-the-loop by design:** agents recommend and prepare; people approve. That's what makes it trustworthy enough to run in a real hotel.
 
+> **Working today:** the **SOP Coach** agent is fully wired as a RAG pipeline (retrieve relevant SOP excerpts → answer grounded only in them → cite sources). It runs offline by default and on **Amazon Bedrock** (Titan embeddings + Claude) with one env var. Try it: `python examples/sop_coach_demo.py`. The other six agents are scaffolded against the same interfaces.
+
 ## Architecture
 Cloud-native on **AWS**:
 - **Amazon Bedrock** — agent reasoning
@@ -52,13 +54,16 @@ Security & trust are first-class: least-privilege access, multi-property tenant 
 ## Repo structure
 ```
 src/velocity_hos/
-  agents/          # the seven agent definitions (base + 7 agents)
+  agents/          # the seven agent definitions (base + 7 agents; SOP Coach = RAG)
   orchestration/   # execution loop + human-in-the-loop approval gate
   integrations/    # PMS, POS, payroll connectors
+  llm/             # embeddings + LLM (Bedrock backend + offline local fallback)
+  rag/             # chunking, vector store, retriever
 infra/             # AWS SAM (Lambda, API Gateway, DynamoDB)
+examples/          # runnable demos (sop_coach_demo.py)
 demo/              # clickable product demo
-docs/              # architecture, agentic loop, workflow diagram
-tests/             # pytest suite (loop + approval gate)
+docs/              # architecture, agentic loop, RAG, workflow diagram
+tests/             # pytest suite (loop, approval gate, SOP Coach RAG)
 ```
 
 ## Quickstart
