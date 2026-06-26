@@ -34,11 +34,12 @@ Inputs → Agents → Human Approval → Actions → Systems → Reporting → (
 
 **Human-in-the-loop by design:** agents recommend and prepare; people approve. That's what makes it trustworthy enough to run in a real hotel.
 
-> **Working today:** two agents are fully wired on **Amazon Bedrock** (with an offline fallback, one env var to switch):
+> **Working today:** the full 21-day "working core" — three agents wired on **Amazon Bedrock** (with an offline fallback, one env var to switch):
 > - **SOP Coach** — a RAG pipeline: retrieve relevant SOP excerpts → answer grounded only in them → cite sources.
 > - **Executive Intelligence** — synthesizes a daily GM briefing from the day's risk/staffing/revenue/compliance alerts, with the raw alerts attached for drill-down.
+> - **HR Onboarding** — determines required documents by role, flags missing docs and expiring permits/visas against the start date, assigns role-specific training, and produces an LLM readiness digest for HR.
 >
-> Try them: `python examples/sop_coach_demo.py`. The remaining five agents are scaffolded against the same interfaces.
+> Try them: `python examples/sop_coach_demo.py`. The remaining four agents are scaffolded against the same interfaces.
 
 ## Architecture
 Cloud-native on **AWS**:
