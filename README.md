@@ -34,7 +34,11 @@ Inputs → Agents → Human Approval → Actions → Systems → Reporting → (
 
 **Human-in-the-loop by design:** agents recommend and prepare; people approve. That's what makes it trustworthy enough to run in a real hotel.
 
-> **Working today:** the **SOP Coach** agent is fully wired as a RAG pipeline (retrieve relevant SOP excerpts → answer grounded only in them → cite sources). It runs offline by default and on **Amazon Bedrock** (Titan embeddings + Claude) with one env var. Try it: `python examples/sop_coach_demo.py`. The other six agents are scaffolded against the same interfaces.
+> **Working today:** two agents are fully wired on **Amazon Bedrock** (with an offline fallback, one env var to switch):
+> - **SOP Coach** — a RAG pipeline: retrieve relevant SOP excerpts → answer grounded only in them → cite sources.
+> - **Executive Intelligence** — synthesizes a daily GM briefing from the day's risk/staffing/revenue/compliance alerts, with the raw alerts attached for drill-down.
+>
+> Try them: `python examples/sop_coach_demo.py`. The remaining five agents are scaffolded against the same interfaces.
 
 ## Architecture
 Cloud-native on **AWS**:

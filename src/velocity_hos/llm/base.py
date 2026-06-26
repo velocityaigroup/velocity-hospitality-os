@@ -1,4 +1,4 @@
-"""Backend-agnostic interfaces for embeddings and answering."""
+"""Backend-agnostic interfaces for embeddings and language generation."""
 from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
@@ -17,7 +17,12 @@ class LLM(Protocol):
         """Answer ``question`` grounded strictly in ``contexts`` (retrieved SOPs)."""
         ...
 
+    def summarize(self, instruction: str, sections: dict[str, list[str]]) -> str:
+        """Synthesize prose from labelled lists of items per ``instruction``."""
+        ...
 
+
+# --- SOP Coach prompting -------------------------------------------------------
 SYSTEM_PROMPT = (
     "You are the SOP Coach for a hotel. Answer the staff member's question using "
     "ONLY the provided standard operating procedures (SOPs). Be concise and "
@@ -33,3 +38,22 @@ def build_prompt(question: str, contexts: list[str]) -> str:
         f"Staff question: {question}\n\n"
         "Answer using only the SOP excerpts above."
     )
+
+
+# --- Executive briefing prompting ---------------------------------------------
+BRIEFING_SYSTEM_PROMPT = (
+    "You are the Executive Intelligence agent for a hotel group. Write a crisp "
+    "daily briefing for the General Manager from the structured alerts provided. "
+    "Lead with what needs a decision. Group by area, keep it scannable, and never "
+    "invent items that are not in the data. If everything is clear, say so."
+)
+
+
+def render_sections(sections: dict[str, list[str]]) -> str:
+    parts: list[str] = []
+    for label, items in sections.items():
+        if not items:
+            continue
+        bullets = "\n".join(f"- {it}" for it in items)
+        parts.append(f"{label.replace('_', ' ').title()}:\n{bullets}")
+    return "\n\n".join(parts) if parts else "(no alerts in any category)"

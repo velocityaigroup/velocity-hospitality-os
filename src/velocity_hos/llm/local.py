@@ -1,13 +1,15 @@
 """Deterministic, dependency-free backend for tests, demos, and offline dev.
 
-Embeddings use hashed bag-of-words; the LLM does extractive grounding (returns
-the most relevant retrieved excerpt). No network, no credentials.
+Embeddings use hashed bag-of-words; the LLM does extractive grounding and
+template-based summarization. No network, no credentials.
 """
 from __future__ import annotations
 
 import hashlib
 import math
 import re
+
+from .base import render_sections
 
 _DIM = 256
 _TOKEN = re.compile(r"[a-z0-9]+")
@@ -41,3 +43,10 @@ class LocalLLM:
         top = contexts[0].strip().replace("\n", " ")
         snippet = (top[:400] + "…") if len(top) > 400 else top
         return f"Per the property SOP: {snippet}"
+
+    def summarize(self, instruction: str, sections: dict[str, list[str]]) -> str:
+        total = sum(len(v) for v in sections.values())
+        if total == 0:
+            return "Daily briefing: all clear — no risks, staffing, revenue, or compliance alerts."
+        body = render_sections(sections)
+        return f"Daily briefing ({total} item(s) need attention):\n\n{body}"

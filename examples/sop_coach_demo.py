@@ -19,3 +19,21 @@ if __name__ == "__main__":
     for q in ["how much rum in a mojito?", "what time does turndown start?"]:
         rec = agent.evaluate(Context("resort-001", {"question": q}, SOPS))[0]
         print(f"\nQ: {q}\nA: {rec.summary}\n   sources: {rec.sources}")
+
+
+# --- Executive Intelligence demo (run this file to see both) ------------------
+def _exec_demo():
+    from velocity_hos.agents.executive_intelligence import ExecutiveIntelligenceAgent
+    from velocity_hos.agents.base import Context
+    signals = {"signals": {
+        "risks": ["Storm warning Thursday"],
+        "staffing_alerts": ["F&B short 2 for Friday peak"],
+        "revenue_alerts": ["Mojito priced 3 ways at pool bar"],
+        "compliance_alerts": ["2 work permits expire this month"],
+    }}
+    rec = ExecutiveIntelligenceAgent().evaluate(Context("resort-001", signals))[0]
+    print("\n=== Executive briefing ===\n" + rec.summary)
+
+
+if __name__ == "__main__":
+    _exec_demo()
