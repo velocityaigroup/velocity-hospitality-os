@@ -49,14 +49,23 @@ Security & trust are first-class: least-privilege access, multi-property tenant 
 - A clickable product demo + deployed architecture
 - A Caribbean pilot roadmap with ≥1 design-partner conversation advancing toward an LOI
 
-## Repo structure (planned)
+## Repo structure
 ```
-/agents          # the seven agent definitions + prompts
-/orchestration   # Step Functions / loop logic
-/integrations    # PMS, POS, payroll connectors
-/infra           # AWS IaC (Lambda, API Gateway, DynamoDB)
-/demo            # clickable product demo
-/docs            # architecture, diagrams, decision records
+src/velocity_hos/
+  agents/          # the seven agent definitions (base + 7 agents)
+  orchestration/   # execution loop + human-in-the-loop approval gate
+  integrations/    # PMS, POS, payroll connectors
+infra/             # AWS SAM (Lambda, API Gateway, DynamoDB)
+demo/              # clickable product demo
+docs/              # architecture, agentic loop, workflow diagram
+tests/             # pytest suite (loop + approval gate)
+```
+
+## Quickstart
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+pytest
 ```
 
 ## Status
@@ -66,4 +75,4 @@ Velocity AI Group already ships production AI systems on this AWS stack for payi
 **Druvaughn Edwards** — Founder, Velocity AI Group. Vincentian; cruise-line and international luxury hospitality operating background; ships AI automation systems today.
 
 ## License
-`[Choose — e.g. MIT or Apache-2.0. The buildathon emphasizes open-source agentic systems, so a permissive OSS license is recommended.]`
+[MIT](LICENSE) — permissive open source, in keeping with the buildathon's open-source emphasis.
