@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Velocity Hospitality OS - serverless backbone (scaffold)
+
+Globals:
+  Function:
+    Runtime: python3.11
+    Timeout: 30
+    MemorySize: 256
+
+Resources:
+  StateTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: tenant_id, AttributeType: S }
+        - { AttributeName: sk, AttributeType: S }
+      KeySchema:
+        - { AttributeName: tenant_id, KeyType: HASH }
+        - { AttributeName: sk, KeyType: RANGE }
+
+  AuditTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: tenant_id, AttributeType: S }
+        - { AttributeName: ts, AttributeType: S }
+      KeySchema:
+        - { AttributeName: tenant_id, KeyType: HASH }
+        - { AttributeName: ts, KeyType: RANGE }
+
+  IngestFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers.ingest.handler
+      Description: Ingest operational signals and start the execution loop.
+      Environment:
+        Variables:
+          DDB_STATE_TABLE: !Ref StateTable
+          DDB_AUDIT_TABLE: !Ref AuditTable
+      Events:
+        Api:
+          Type: Api
+          Properties: { Path: /ingest, Method: post }
+
+Outputs:
+  ApiUrl:
+    Description: Ingest endpoint
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/ingest"
