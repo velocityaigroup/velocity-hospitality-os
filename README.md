@@ -1,5 +1,8 @@
 # Velocity Hospitality OS
 
+[![CI](https://github.com/velocityaigroup/velocity-hospitality-os/actions/workflows/ci.yml/badge.svg)](https://github.com/velocityaigroup/velocity-hospitality-os/actions/workflows/ci.yml)
+
+
 **The agentic execution layer for hospitality.** Hotels already have standards — SOPs, brand manuals, training. They fail because those standards aren't *executed* consistently across shifts, departments, seasons, and properties. Velocity deploys a team of supervised AI agents that sit **above** a hotel's existing systems and make sure standards are followed, measured, and improved — automatically, with a human always in control.
 
 > Built for the **Future Caribbean Global AI Buildathon 2026** · Track: Tourism & Transportation · by [Velocity AI Group](https://velocityaigroup.co)
