@@ -1,0 +1,10 @@
+{
+  "label": "nova-pro",
+  "backend": "bedrock",
+  "model": "amazon.nova-pro-v1:0",
+  "avg_latency_ms": 1244.9,
+  "faithfulness": 0.483,
+  "refusal_accuracy": 1.0,
+  "avg_answer_chars": 119,
+  "n_cases": 12
+}

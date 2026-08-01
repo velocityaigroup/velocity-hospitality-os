@@ -1,7 +1,12 @@
-"""Amazon Bedrock backend: Titan Text Embeddings v2 + Claude (messages API).
+"""Amazon Bedrock backend via the Converse API (model-family agnostic).
+
+Converse gives one request/response shape across every Bedrock foundation model —
+no model-specific request formatting anywhere — so switching foundation models is a
+config change, never a code change. Default model is set in config (a foundation
+model available on the account); set BEDROCK_MODEL_ID to switch to any other.
 
 boto3 is imported lazily so the package imports cleanly without AWS installed.
-Requires AWS credentials and Bedrock model access enabled in the target region.
+Embeddings use Amazon Titan (only needed if VHOS_EMBED_BACKEND=bedrock).
 """
 from __future__ import annotations
 
@@ -21,23 +26,21 @@ def _client():
     return boto3.client("bedrock-runtime", region_name=settings.aws_region)
 
 
-def _claude(client, model_id: str, system: str, user: str,
-            max_tokens: int = 512, temperature: float = 0.2) -> str:
-    resp = client.invoke_model(
+def _converse(client, model_id: str, system: str, user: str,
+              max_tokens: int = 512, temperature: float = 0.2) -> str:
+    """One call shape for every Bedrock foundation model — no per-model formatting."""
+    resp = client.converse(
         modelId=model_id,
-        body=json.dumps({
-            "anthropic_version": "bedrock-2023-05-31",
-            "max_tokens": max_tokens,
-            "temperature": temperature,
-            "system": system,
-            "messages": [{"role": "user", "content": [{"type": "text", "text": user}]}],
-        }),
+        system=[{"text": system}],
+        messages=[{"role": "user", "content": [{"text": user}]}],
+        inferenceConfig={"maxTokens": max_tokens, "temperature": temperature},
     )
-    payload = json.loads(resp["body"].read())
-    return payload["content"][0]["text"].strip()
+    return resp["output"]["message"]["content"][0]["text"].strip()
 
 
 class BedrockEmbeddings:
+    """Amazon Titan Text Embeddings (only used if VHOS_EMBED_BACKEND=bedrock)."""
+
     def __init__(self, model_id: str | None = None):
         self.model_id = model_id or settings.embed_model_id
 
@@ -55,13 +58,15 @@ class BedrockEmbeddings:
 
 
 class BedrockLLM:
+    """Answering via Bedrock Converse — works with any Converse-capable foundation model."""
+
     def __init__(self, model_id: str | None = None):
         self.model_id = model_id or settings.bedrock_model_id
 
     def answer(self, question: str, contexts: list[str]) -> str:
-        return _claude(_client(), self.model_id, SYSTEM_PROMPT,
-                       build_prompt(question, contexts))
+        return _converse(_client(), self.model_id, SYSTEM_PROMPT,
+                         build_prompt(question, contexts))
 
     def summarize(self, instruction: str, sections: dict[str, list[str]]) -> str:
         user = f"{instruction}\n\nAlerts:\n{render_sections(sections)}"
-        return _claude(_client(), self.model_id, BRIEFING_SYSTEM_PROMPT, user)
+        return _converse(_client(), self.model_id, BRIEFING_SYSTEM_PROMPT, user)

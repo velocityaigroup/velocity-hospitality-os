@@ -1,0 +1,81 @@
+{
+  "retrieval_precision": 1.0,
+  "grounding_rate": 1.0,
+  "refusal_accuracy": 1.0,
+  "overall": 1.0,
+  "total": 12,
+  "rows": [
+    {
+      "question": "how much rum goes in a mojito?",
+      "expected": "bev.mojito",
+      "outcome": "bev.mojito",
+      "pass": true
+    },
+    {
+      "question": "what's our target pour cost on cocktails?",
+      "expected": "bev.pour_cost",
+      "outcome": "bev.pour_cost",
+      "pass": true
+    },
+    {
+      "question": "how do I check in a VIP guest?",
+      "expected": "fo.checkin",
+      "outcome": "fo.checkin",
+      "pass": true
+    },
+    {
+      "question": "what time does turndown service start?",
+      "expected": "hk.turndown",
+      "outcome": "hk.turndown",
+      "pass": true
+    },
+    {
+      "question": "when do we renew a work permit that's expiring?",
+      "expected": "hr.permit",
+      "outcome": "hr.permit",
+      "pass": true
+    },
+    {
+      "question": "which documents does a new kitchen hire need before starting?",
+      "expected": "hr.onboarding_docs",
+      "outcome": "hr.onboarding_docs",
+      "pass": true
+    },
+    {
+      "question": "how do we handle a cabana booking at the pool?",
+      "expected": "rev.cabana",
+      "outcome": "rev.cabana",
+      "pass": true
+    },
+    {
+      "question": "what's the first step when a guest complains?",
+      "expected": "guest.recovery",
+      "outcome": "guest.recovery",
+      "pass": true
+    },
+    {
+      "question": "what is the capital of France?",
+      "expected": null,
+      "outcome": "REFUSED",
+      "pass": true
+    },
+    {
+      "question": "how do I reset my personal email password?",
+      "expected": null,
+      "outcome": "REFUSED",
+      "pass": true
+    },
+    {
+      "question": "tell me a joke about penguins",
+      "expected": null,
+      "outcome": "REFUSED",
+      "pass": true
+    },
+    {
+      "question": "what's the weather forecast for tomorrow?",
+      "expected": null,
+      "outcome": "REFUSED",
+      "pass": true
+    }
+  ]
+}

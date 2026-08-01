@@ -1,6 +1,6 @@
 """RAG SOP Coach: retrieval picks the right SOP and the answer cites it."""
-from velocity_hos.agents.sop_coach import SOPCoachAgent
 from velocity_hos.agents.base import Context, RiskLevel
+from velocity_hos.agents.sop_coach import SOPCoachAgent
 
 SOPS = {
     "bev.mojito": (
@@ -42,3 +42,16 @@ def test_empty_sops_is_handled_gracefully():
         Context(tenant_id="t", inputs={"question": "anything?"}, sops={}))
     assert len(recs) == 1
     assert recs[0].sources == []
+
+
+def test_refuses_out_of_scope_question():
+    """Grounding guardrail: no supporting SOP -> refuse, don't invent policy."""
+    recs = SOPCoachAgent().evaluate(
+        Context(tenant_id="t",
+                inputs={"question": "what is the capital of France?"},
+                sops=SOPS))
+    assert len(recs) == 1
+    rec = recs[0]
+    assert rec.sources == []                                   # nothing cited
+    assert rec.proposed_action["type"] == "refusal"            # explicit refusal
+    assert "couldn't find" in rec.summary.lower()

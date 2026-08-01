@@ -7,7 +7,7 @@ readiness digest for the HR manager.
 
 Document requests and permit escalations are routed for human approval (they
 contact a person); training assignment is internal/low-risk. The digest is
-generated via the pluggable LLM backend (Bedrock Claude, with an offline fallback).
+generated via the pluggable AI provider (any foundation model, with an offline fallback).
 """
 from __future__ import annotations
 

@@ -37,20 +37,31 @@ Inputs → Agents → Human Approval → Actions → Systems → Reporting → (
 
 **Human-in-the-loop by design:** agents recommend and prepare; people approve. That's what makes it trustworthy enough to run in a real hotel.
 
-> **Working today:** the full 21-day "working core" — three agents wired on **Amazon Bedrock** (with an offline fallback, one env var to switch):
-> - **SOP Coach** — a RAG pipeline: retrieve relevant SOP excerpts → answer grounded only in them → cite sources.
+> **Working today** — three agents running the full loop, model-agnostic:
+> - **SOP Coach** — a RAG pipeline: retrieve relevant SOP excerpts → answer grounded only in them → **cite sources**, and **refuse** (grounding guardrail) when nothing supports the question instead of inventing policy.
 > - **Executive Intelligence** — synthesizes a daily GM briefing from the day's risk/staffing/revenue/compliance alerts, with the raw alerts attached for drill-down.
-> - **HR Onboarding** — determines required documents by role, flags missing docs and expiring permits/visas against the start date, assigns role-specific training, and produces an LLM readiness digest for HR.
+> - **HR Onboarding** — determines required documents by role, flags missing docs and expiring permits/visas against the start date, assigns role-specific training, and produces a readiness digest for HR.
 >
-> Try them: `python examples/sop_coach_demo.py`. The remaining four agents are scaffolded against the same interfaces.
+> Try it: `python ui/server.py` (web UI at localhost:8080) · `python demo/run_demo.py` (end-to-end loop) · `python eval/run_eval.py` (measured accuracy).
+
+## Model-agnostic & self-hosted
+The LLM is a **swappable provider behind one interface** — all retrieval, grounding, citations, evaluation and workflow logic are model-independent. Switch models with a single env var; no application code changes.
+
+| Provider | Status | Use |
+|---|---|---|
+| **Open-weights, self-hosted** | ✅ **official** | Production on our own GPU (H200): **Qwen3.6-27B**, Apache-2.0, served with vLLM. No vendor lock-in. |
+| **Amazon Bedrock (Converse)** | ✅ available | Managed cloud provider via the **Converse API** — validated on **Amazon Nova** today. Converse is foundation-model agnostic, so any other foundation model drops in with no code change. |
+| Local proof model | ✅ | Validates the entire path on a laptop (Ollama) before the H200 is provisioned. |
+| Offline deterministic | ✅ | Hermetic default for CI/tests — no network. |
+| Other AI providers (direct APIs) | ⬚ addable | Same interface — add without touching app logic. |
+
+By design there is **no hard dependency on any single model vendor** — the foundation model is swapped with one env var. *(Some managed foundation models are entitlement-gated on our AWS account; because Bedrock uses Converse and the backend is provider-agnostic, we run an available model — Amazon Nova — or self-hosted open weights instead, with nothing blocked.)* See [`docs/openweights-runbook.md`](docs/openweights-runbook.md), [`docs/bedrock-deploy.md`](docs/bedrock-deploy.md), [`docs/model-benchmark.md`](docs/model-benchmark.md) and [`docs/architecture-model-agnostic.svg`](docs/architecture-model-agnostic.svg).
 
 ## Architecture
-Cloud-native on **AWS**:
-- **Amazon Bedrock** — agent reasoning
-- **AWS Step Functions + Lambda** — orchestration and the execution loop
-- **API Gateway + DynamoDB** — serverless backbone with per-tenant isolation
-- **Vector store (RAG)** — SOP/knowledge retrieval
-- Integration layer — PMS, POS/Micros, SevenRooms, payroll via REST/webhooks
+- **AI provider (pluggable)** — open-weights self-hosted (official) · offline · Bedrock Converse + other providers optional
+- **Model-independent core** — RAG retrieval, grounding guardrail, citations, evaluation harness
+- **Orchestration** — the execution loop + human-in-the-loop approval gate (AWS Step Functions + Lambda in production)
+- **State** — DynamoDB, per-tenant isolation · **Integrations** — PMS, POS/Micros, SevenRooms, payroll via REST/webhooks
 
 Security & trust are first-class: least-privilege access, multi-property tenant isolation, full auditability, transparency by design.
 
@@ -65,13 +76,16 @@ src/velocity_hos/
   agents/          # the seven agent definitions (base + 7 agents; SOP Coach = RAG)
   orchestration/   # execution loop + human-in-the-loop approval gate
   integrations/    # PMS, POS, payroll connectors
-  llm/             # embeddings + LLM (Bedrock backend + offline local fallback)
-  rag/             # chunking, vector store, retriever
+  llm/             # provider abstraction: local · openweights (vLLM) · bedrock
+  rag/             # chunking, vector store, retriever, grounding guardrail
+  data/            # model-independent SOP knowledge seed
+ui/                # dependency-free local web UI (server.py)
+eval/              # SOP Coach evaluation harness + golden set
+scripts/           # bedrock / open-weights smoke tests
 infra/             # AWS SAM (Lambda, API Gateway, DynamoDB)
-examples/          # runnable demos (sop_coach_demo.py)
-demo/              # clickable product demo
-docs/              # architecture, agentic loop, RAG, workflow diagram
-tests/             # pytest suite (loop, approval gate, SOP Coach RAG)
+demo/              # end-to-end hero-loop demo
+docs/              # architecture (model-agnostic), agentic loop, RAG, runbooks
+tests/             # pytest suite (loop, approval, SOP Coach, eval, providers)
 ```
 
 ## Quickstart
