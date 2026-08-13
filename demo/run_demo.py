@@ -153,7 +153,7 @@ def main() -> int:
         (here / "decision_trail.md").write_text(result.trail.to_markdown(), encoding="utf-8")
         (here / "decision_trail.json").write_text(result.trail.to_json(), encoding="utf-8")
         counts = result.trail.counts()
-        print(f"  Decision trail exported → demo/decision_trail.md · decision_trail.json")
+        print("  Decision trail exported → demo/decision_trail.md · decision_trail.json")
         print(f"  Trail roll-up: {counts}")
     print("  Every recommendation, decision, and action is recorded for review.\n")
 

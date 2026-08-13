@@ -29,7 +29,7 @@ from velocity_hos.agents.hr_onboarding import HROnboardingAgent  # noqa: E402
 from velocity_hos.agents.sop_coach import SOPCoachAgent  # noqa: E402
 from velocity_hos.config import settings  # noqa: E402
 from velocity_hos.knowledge import DEMO_SOPS, FINDINGS, demo_retrieval_docs, departments  # noqa: E402
-from velocity_hos.orchestration.approval import ApprovalDecision, ApprovalGate  # noqa: E402
+from velocity_hos.orchestration.approval import ApprovalGate  # noqa: E402
 from velocity_hos.orchestration.loop import ExecutionLoop  # noqa: E402
 
 PORT = 8080
