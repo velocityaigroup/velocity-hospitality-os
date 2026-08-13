@@ -2,22 +2,25 @@
 
     python demo/run_demo.py
 
-Runs ONE execution loop across three supervised agents on a single property's
+Runs ONE execution loop across four supervised agents on a single property's
 operational inputs, and shows the whole spine live:
 
     Inputs -> Agents -> Human Approval -> Actions -> Reporting
 
 The point of the demo is the human-in-the-loop gate: consequential actions
-(contacting a hire, escalating a permit) are HELD for a human, who approves or
-rejects them; only then do they become actions. Informational output (the SOP
-answer, the GM briefing) flows straight through. Offline by default — no network,
-no credentials — so it runs anywhere for a recording.
+(contacting a hire, escalating a permit, dispatching a safety-critical repair) are
+HELD for a human, who approves or rejects them; only then do they become actions.
+Routine work (a dripping tap) is auto-routed and logged; informational output (the
+SOP answer, the GM briefing) flows straight through. Offline by default — no
+network, no credentials — so it runs anywhere for a recording. It also writes an
+inspectable decision trail (decision_trail.md / .json) a judge can open afterwards.
 
-Model-agnostic: the official deployment runs an open-weights model we self-host
-(vLLM on H200); the offline default answers here with zero setup. Swap freely:
+Model-agnostic: the buildathon's provided compute is an open-weights model
+(Qwen 3.6 27B on the Impala gateway); the offline default answers here with zero
+setup, and self-hosting the same class of open model is an alternative. Swap freely:
 
-    VHOS_LLM_BACKEND=openweights  python demo/run_demo.py   # self-hosted open model (official)
-    VHOS_LLM_BACKEND=bedrock      python demo/run_demo.py   # optional managed provider
+    VHOS_LLM_BACKEND=openweights  python demo/run_demo.py   # provided open weights (Impala/Qwen)
+    VHOS_LLM_BACKEND=bedrock      python demo/run_demo.py   # optional managed provider (Nova)
 """
 from __future__ import annotations
 
@@ -30,6 +33,7 @@ from velocity_hos.agents.base import Context, RiskLevel
 from velocity_hos.agents.executive_intelligence import ExecutiveIntelligenceAgent
 from velocity_hos.agents.hr_onboarding import HROnboardingAgent
 from velocity_hos.agents.sop_coach import SOPCoachAgent
+from velocity_hos.agents.work_order import WorkOrderAgent
 from velocity_hos.orchestration.approval import ApprovalDecision, ApprovalGate
 from velocity_hos.orchestration.loop import ExecutionLoop
 
@@ -43,6 +47,9 @@ SOPS = {
     "bev.mojito": "Mojito: 50ml white rum, 8 mint, 25ml lime, 2 tsp sugar, top soda. Jigger every pour.",
     "hr.onboarding_docs": "New hires need passport, work permit, contract, tax form. F&B/kitchen also need a food handler certificate.",
     "hr.permit": "Work permits must stay valid through the contract. HR escalates any permit expiring within 30 days of the start date.",
+    "eng.lift_safety": "Lift/elevator faults that can trap or endanger guests are safety-critical: take the car out of service, call the duty engineer, and raise a work order within 1 hour. Guest-impacting or safety defects require Duty Manager approval before dispatch.",
+    "eng.hvac": "Guest-room air-conditioning and climate faults affecting an in-house guest are prioritised same day; a VIP-occupied room is escalated to the Duty Manager.",
+    "eng.minor": "Routine minor repairs such as a dripping tap or a cosmetic scuff mark are logged and scheduled within the standard maintenance cycle.",
 }
 
 # --- A day's operational inputs for one property ------------------------------
@@ -58,6 +65,17 @@ INPUTS = {
          "documents": ["passport", "work_permit", "contract", "tax_form"],
          "start_date": "2026-08-12"},                          # clean — ready to start
     ],
+    # maintenance / guest-request tickets for the Work Order agent (mixed urgency)
+    "tickets": [
+        {"id": "WO-501", "category": "safety",
+         "description": "elevator 2 stalling intermittently between floors"},
+        {"id": "WO-502", "category": "vip",
+         "description": "suite 610 AC not cooling, VIP guest in house"},
+        {"id": "WO-503", "category": "comfort",
+         "description": "lobby restroom tap dripping"},
+        {"id": "WO-504", "category": "cosmetic",
+         "description": "scuff mark on the floor 3 corridor wall"},
+    ],
     # alerts feeding the Executive Intelligence briefing
     "signals": {
         "risks": ["Storm warning Thursday PM — pool & watersports"],
@@ -69,7 +87,10 @@ INPUTS = {
 
 
 def main() -> int:
-    agents = [SOPCoachAgent(), HROnboardingAgent(), ExecutiveIntelligenceAgent()]
+    # top_k=1 for the demo: the KB now spans several departments, so answer from the
+    # single best-matched SOP for a clean, correctly-cited response on screen.
+    agents = [SOPCoachAgent(top_k=1), HROnboardingAgent(), WorkOrderAgent(),
+              ExecutiveIntelligenceAgent()]
     gate = ApprovalGate()
     loop = ExecutionLoop(agents, gate)
     ctx = Context(tenant_id="sunset-boutique-svg", inputs=INPUTS, sops=SOPS)
@@ -78,6 +99,7 @@ def main() -> int:
     print(f"  Tenant: {ctx.tenant_id}")
     print(f"  Staff question: {INPUTS['question']!r}")
     print(f"  New hires in pipeline: {len(INPUTS['new_hires'])}")
+    print(f"  Maintenance tickets: {len(INPUTS['tickets'])}")
     print(f"  Operational alerts: {sum(len(v) for v in INPUTS['signals'].values())}")
 
     rule("2 · AGENTS  (each reasons against the property's own standards)")
@@ -123,6 +145,16 @@ def main() -> int:
                      if r.agent == "executive_intelligence"), "")
     print(briefing + "\n")
     print(f"  Audit events logged this cycle: {len(result.audit)}")
+    # Export the inspectable decision trail — the artifact a judge opens to answer
+    # "why did the system do that?": every recommendation, its grounding SOP, and
+    # the human/automatic decision, timestamped and ordered.
+    if result.trail is not None:
+        here = Path(__file__).resolve().parent
+        (here / "decision_trail.md").write_text(result.trail.to_markdown(), encoding="utf-8")
+        (here / "decision_trail.json").write_text(result.trail.to_json(), encoding="utf-8")
+        counts = result.trail.counts()
+        print(f"  Decision trail exported → demo/decision_trail.md · decision_trail.json")
+        print(f"  Trail roll-up: {counts}")
     print("  Every recommendation, decision, and action is recorded for review.\n")
 
     rule("SUMMARY")

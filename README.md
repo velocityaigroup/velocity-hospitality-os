@@ -37,10 +37,13 @@ Inputs → Agents → Human Approval → Actions → Systems → Reporting → (
 
 **Human-in-the-loop by design:** agents recommend and prepare; people approve. That's what makes it trustworthy enough to run in a real hotel.
 
-> **Working today** — three agents running the full loop, model-agnostic:
+> **Working today** — four supervised agents running the full loop, model-agnostic:
 > - **SOP Coach** — a RAG pipeline: retrieve relevant SOP excerpts → answer grounded only in them → **cite sources**, and **refuse** (grounding guardrail) when nothing supports the question instead of inventing policy.
-> - **Executive Intelligence** — synthesizes a daily GM briefing from the day's risk/staffing/revenue/compliance alerts, with the raw alerts attached for drill-down.
 > - **HR Onboarding** — determines required documents by role, flags missing docs and expiring permits/visas against the start date, assigns role-specific training, and produces a readiness digest for HR.
+> - **Work Order** — triages maintenance and guest-request tickets to a priority, owner, and SLA, **grounded in the property's own maintenance/safety SOPs** — holding anything safety-critical, guest-impacting, or above a cost threshold for **human approval**, and auto-routing routine work.
+> - **Executive Intelligence** — synthesizes the GM's daily briefing from the day's risk/staffing/revenue/compliance alerts **and what the other agents did this cycle** (actions taken + items awaiting approval), which is what closes the loop.
+>
+> Every recommendation and the decision taken on it is written to an inspectable, timestamped **decision trail** (`demo/decision_trail.md` / `.json`) — the artifact you open to answer "why did the system do that?".
 >
 > Try it: `python ui/server.py` (web UI at localhost:8080) · `python demo/run_demo.py` (end-to-end loop) · `python eval/run_eval.py` (measured accuracy).
 
@@ -49,9 +52,9 @@ The LLM is a **swappable provider behind one interface** — all retrieval, grou
 
 | Provider | Status | Use |
 |---|---|---|
-| **Open-weights, self-hosted** | ✅ **official** | Production on our own GPU (H200): **Qwen3.6-27B**, Apache-2.0, served with vLLM. No vendor lock-in. |
+| **Provided open weights (Impala gateway)** | ✅ **primary** | The buildathon's provided compute — **Qwen 3.6 27B** served over an OpenAI-compatible gateway, reached through our `openweights` provider (config change, no code change). No vendor lock-in. |
 | **Amazon Bedrock (Converse)** | ✅ available | Managed cloud provider via the **Converse API** — validated on **Amazon Nova** today. Converse is foundation-model agnostic, so any other foundation model drops in with no code change. |
-| Local proof model | ✅ | Validates the entire path on a laptop (Ollama) before the H200 is provisioned. |
+| **Self-hosted open weights (vLLM)** | ⬚ alternative | The same `openweights` provider can point at a vLLM server on our own GPU for full-sovereignty deployments — no application code change. |
 | Offline deterministic | ✅ | Hermetic default for CI/tests — no network. |
 | Other AI providers (direct APIs) | ⬚ addable | Same interface — add without touching app logic. |
 

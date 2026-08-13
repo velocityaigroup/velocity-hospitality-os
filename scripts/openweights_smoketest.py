@@ -23,15 +23,23 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from velocity_hos.config import settings  # noqa: E402
 
+# Windows consoles default to a legacy code page (cp1252) that can't encode the
+# symbols below; force UTF-8 so the proof output is clean everywhere.
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+except Exception:  # noqa: BLE001
+    pass
+
 
 def _fail(msg: str) -> int:
-    print(f"\n❌ Open-weights smoke test FAILED\n   {msg}\n")
+    print(f"\n[FAIL] Open-weights smoke test FAILED\n   {msg}\n")
     print("Checklist:")
-    print("  1. A server is running and reachable at VHOS_OPENWEIGHTS_URL:")
+    print("  1. The gateway is reachable at VHOS_OPENWEIGHTS_URL:")
     print(f"       {settings.openweights_base_url}")
     print("  2. VHOS_LLM_BACKEND=openweights")
-    print(f"  3. The model name matches one the server has: {settings.openweights_model}")
-    print("     (Ollama: `ollama pull <model>`  ·  vLLM: the --model you served)")
+    print(f"  3. The model name matches the gateway's: {settings.openweights_model}")
+    print("  4. VHOS_OPENWEIGHTS_API_KEY is set to your team key (starts with sk-).")
     return 1
 
 
@@ -53,7 +61,7 @@ def main() -> int:
                        "top with soda. Free-pour with a jigger."),
     }
     try:
-        print("→ SOP Coach via the open-weights model (RAG) ...", flush=True)
+        print("-> SOP Coach via the open-weights model (RAG) ...", flush=True)
         rec = SOPCoachAgent().evaluate(
             Context("smoketest", {"question": "how much rum in a mojito?"}, sops))[0]
         print("   Q: how much rum in a mojito?")

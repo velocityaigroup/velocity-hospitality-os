@@ -34,3 +34,7 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+_export_for_claude.tar.gz
+_vhos_update.tar.gz
+_to_delete/

@@ -31,6 +31,10 @@ class Settings:
         "VHOS_OPENWEIGHTS_EMBED_MODEL", "BAAI/bge-small-en-v1.5"
     )
     openweights_api_key: str | None = os.getenv("VHOS_OPENWEIGHTS_API_KEY") or None
+    # Reasoning models (e.g. Qwen 3.x) emit chain-of-thought before the answer. When
+    # true (default) the provider suppresses it (Qwen "/no_think" hint) and strips any
+    # <think>…</think> block, so staff/judges see the concise final answer only.
+    openweights_no_think: bool = os.getenv("VHOS_OPENWEIGHTS_NO_THINK", "1") not in ("0", "false", "False", "")
 
     # DynamoDB tables (per-tenant isolation)
     state_table: str = os.getenv("DDB_STATE_TABLE", "vhos-state")

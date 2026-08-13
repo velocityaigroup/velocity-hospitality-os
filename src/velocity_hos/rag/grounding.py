@@ -19,9 +19,34 @@ _STOP = frozenset(
 _TOKEN = re.compile(r"[a-z0-9&]+")
 
 
+def _stem(tok: str) -> str:
+    """Light inflectional stemmer: unify plural/verb forms and derivations.
+
+    Strips a trailing plural 's' then truncates to a 6-char stem, so that
+    document/documents, complain/complains/complaint, permit/permits, and
+    reserve/reservation collapse to the same key for retrieval and grounding.
+    Crude by design (no dependency); over-merges rarely and helpfully at
+    property-SOP scale.
+    """
+    if len(tok) > 3 and tok.endswith("s"):
+        tok = tok[:-1]
+    return tok[:6]
+
+
+def content_token_counts(text: str) -> dict[str, int]:
+    """Stemmed content tokens with term frequency (stopwords/short tokens removed)."""
+    counts: dict[str, int] = {}
+    for t in _TOKEN.findall(text.lower()):
+        if t in _STOP or len(t) <= 2:
+            continue
+        s = _stem(t)
+        counts[s] = counts.get(s, 0) + 1
+    return counts
+
+
 def content_tokens(text: str) -> set[str]:
-    """Lowercase content tokens (stopwords and 1–2 char tokens removed)."""
-    return {t for t in _TOKEN.findall(text.lower()) if t not in _STOP and len(t) > 2}
+    """Lowercase, stemmed content tokens (stopwords and 1–2 char tokens removed)."""
+    return set(content_token_counts(text))
 
 
 def overlap_score(question: str, contexts: list[str]) -> int:

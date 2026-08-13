@@ -1,0 +1,172 @@
+{
+  "backend": "openweights",
+  "model": "qwen3.6-27b",
+  "total": 18,
+  "correct": 18,
+  "faithfulness": 1.0,
+  "rows": [
+    {
+      "question": "how much rum goes in a mojito?",
+      "required": [
+        "50ml"
+      ],
+      "pass": true,
+      "source": "FB-210",
+      "answer": "50ml white rum."
+    },
+    {
+      "question": "what is the target beverage pour cost?",
+      "required": [
+        "18",
+        "22"
+      ],
+      "pass": true,
+      "source": "FB-210",
+      "answer": "The target beverage pour cost is 18\u201322%."
+    },
+    {
+      "question": "how quickly must we acknowledge a guest complaint?",
+      "required": [
+        "15"
+      ],
+      "pass": true,
+      "source": "GX-201",
+      "answer": "Within 15 minutes."
+    },
+    {
+      "question": "within how many days of a start date do we renew an expiring work permit?",
+      "required": [
+        "30"
+      ],
+      "pass": true,
+      "source": "HR-501",
+      "answer": "30 days"
+    },
+    {
+      "question": "which certificate does an F&B or kitchen new hire need before their first shift?",
+      "required": [
+        "food handler"
+      ],
+      "pass": true,
+      "source": "HR-501",
+      "answer": "A valid food-handler certificate."
+    },
+    {
+      "question": "who must inspect a room before it is released as ready?",
+      "required": [
+        "supervisor"
+      ],
+      "pass": true,
+      "source": "HK-301",
+      "answer": "The Floor Supervisor must inspect the room before it is released as ready."
+    },
+    {
+      "question": "how quickly should a VIP guest be greeted by name on arrival?",
+      "required": [
+        "10"
+      ],
+      "pass": true,
+      "source": "FO-101",
+      "answer": "Within 10 seconds."
+    },
+    {
+      "question": "what is the response SLA for a safety-critical maintenance defect?",
+      "required": [
+        "immediate"
+      ],
+      "pass": true,
+      "source": "MN-401",
+      "answer": "Immediate."
+    },
+    {
+      "question": "what must be completed before confirming a spa treatment?",
+      "required": [
+        "consultation"
+      ],
+      "pass": true,
+      "source": "SPA-1005",
+      "answer": "A health consultation and screening for contraindications must be completed before confirming a spa treatment."
+    },
+    {
+      "question": "who signs off an allergen-adapted dish before it is served?",
+      "required": [
+        "chef"
+      ],
+      "pass": true,
+      "source": "FB-225",
+      "answer": "The chef signs off the plate."
+    },
+    {
+      "question": "when a fire alarm cannot be verified as false, what should staff do?",
+      "required": [
+        "evacuate"
+      ],
+      "pass": true,
+      "source": "SEC-901",
+      "answer": "Treat it as real and evacuate."
+    },
+    {
+      "question": "what must be verified before posting a charge to a guest's room in the boutique?",
+      "required": [
+        "guest"
+      ],
+      "pass": true,
+      "source": "RET-1301",
+      "answer": "The guest and room must be verified before posting to the folio."
+    },
+    {
+      "question": "what is the first priority in any fire or emergency alarm?",
+      "required": [
+        "life"
+      ],
+      "pass": true,
+      "source": "SEC-901",
+      "answer": "Protect life first."
+    },
+    {
+      "question": "what must be tracked for every scheduled airport transfer?",
+      "required": [
+        "flight"
+      ],
+      "pass": true,
+      "source": "TR-1201",
+      "answer": "Live flight status."
+    },
+    {
+      "question": "what should the executive morning briefing lead with?",
+      "required": [
+        "decision"
+      ],
+      "pass": true,
+      "source": "EX-601",
+      "answer": "The executive morning briefing should lead with what needs a decision today."
+    },
+    {
+      "question": "what determines a reservation's cancellation charge?",
+      "required": [
+        "rate plan"
+      ],
+      "pass": true,
+      "source": "RES-715",
+      "answer": "The reservation's rate-plan cancellation terms determine the charge."
+    },
+    {
+      "question": "can the pool open if the water chemistry is out of the safe range?",
+      "required": [
+        "clos"
+      ],
+      "pass": true,
+      "source": "ENG-420",
+      "answer": "No. According to SOP POOL-1101, do not open the pool if water chemistry is outside the safe range. The pool must remain closed, Engineering must be notified, and the water must be re-tested before ope"
+    },
+    {
+      "question": "when must internal stock transfers be recorded?",
+      "required": [
+        "movement"
+      ],
+      "pass": true,
+      "source": "FIN-610",
+      "answer": "Internal stock transfers must be recorded at the time of movement, not retrospectively."
+    }
+  ]
+}

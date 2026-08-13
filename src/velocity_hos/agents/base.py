@@ -41,6 +41,10 @@ class Context:
 class Agent(ABC):
     """Abstract supervised agent."""
     name: str = "agent"
+    # Loop phase. "operate" agents run first (they observe inputs and act);
+    # "report" agents run last and additionally see what happened this cycle,
+    # so the daily briefing reflects the actions the other agents just took.
+    phase: str = "operate"
 
     @abstractmethod
     def evaluate(self, ctx: Context) -> list[Recommendation]:

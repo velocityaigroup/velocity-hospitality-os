@@ -1,14 +1,16 @@
 """Open-weights backend: an OpenAI-compatible server (vLLM / TGI) on your GPU.
 
-This lets Velocity run entirely on open-weights models (e.g. Llama-3.1) served on
-the Buildathon's provided H200 compute — no managed-API dependency — while keeping
-the exact same ``LLM`` / ``Embeddings`` interface as the local and Bedrock backends.
+This lets Velocity run entirely on a self-hosted open-weights model served on the
+Buildathon's provided H200 compute — no managed-API dependency — while keeping the
+exact same ``LLM`` / ``Embeddings`` interface as the local and Bedrock backends. The
+model id is config-driven (``settings.openweights_model``); confirm the exact
+Hugging Face repo id for the model you serve.
 
 Serve a model with vLLM (see docs/openweights-runbook.md), then:
 
     export VHOS_LLM_BACKEND=openweights
     export VHOS_OPENWEIGHTS_URL=http://<gpu-host>:8000/v1
-    export VHOS_OPENWEIGHTS_MODEL=meta-llama/Llama-3.1-8B-Instruct
+    export VHOS_OPENWEIGHTS_MODEL=<hf-repo-id-you-served>
 
 Uses only the standard library (urllib) so it adds no dependency and imports
 cleanly with no server running.
@@ -16,6 +18,8 @@ cleanly with no server running.
 from __future__ import annotations
 
 import json
+import re
+import urllib.error
 import urllib.request
 
 from velocity_hos.config import settings
@@ -26,6 +30,22 @@ from .base import (
     build_prompt,
     render_sections,
 )
+
+# Matches a reasoning model's chain-of-thought block, e.g. Qwen's <think>…</think>.
+_THINK_RE = re.compile(r"<think>.*?</think>", re.DOTALL | re.IGNORECASE)
+
+
+def _strip_reasoning(text: str) -> str:
+    """Return only the final answer: remove any <think>…</think> block (and a
+    dangling, unclosed <think> preamble) that reasoning models emit."""
+    text = _THINK_RE.sub("", text)
+    # Unclosed <think> (truncated/streamed): drop everything up to the last </think>,
+    # else everything before an explicit final-answer marker if present.
+    if "</think>" in text:
+        text = text.rsplit("</think>", 1)[-1]
+    elif "<think>" in text:
+        text = text.split("<think>", 1)[0]
+    return text.strip()
 
 
 def _post(path: str, payload: dict, timeout: float = 60.0) -> dict:
@@ -41,16 +61,39 @@ def _post(path: str, payload: dict, timeout: float = 60.0) -> dict:
 
 
 def _chat(system: str, user: str, max_tokens: int = 512, temperature: float = 0.2) -> str:
-    resp = _post("/chat/completions", {
+    no_think = settings.openweights_no_think
+    if no_think:
+        # Belt-and-suspenders CoT suppression on reasoning models (e.g. Qwen 3.x):
+        system = system + "\n\nAnswer with only the final response. Do not show your reasoning."
+        user = user + " /no_think"
+    payload = {
         "model": settings.openweights_model,
         "messages": [
             {"role": "system", "content": system},
             {"role": "user", "content": user},
         ],
-        "max_tokens": max_tokens,
+        # Reasoning models spend tokens "thinking"; give headroom so the final
+        # answer isn't truncated even if some reasoning slips through.
+        "max_tokens": max_tokens if not no_think else max(max_tokens, 768),
         "temperature": temperature,
-    })
-    return resp["choices"][0]["message"]["content"].strip()
+    }
+    if no_think:
+        # Primary lever: turn off the model's thinking phase at the chat-template
+        # level (Qwen/vLLM). Sent via extra body; if the gateway rejects the field
+        # we retry without it and fall back to the hints + strip above.
+        payload["chat_template_kwargs"] = {"enable_thinking": False}
+
+    try:
+        resp = _post("/chat/completions", payload)
+    except urllib.error.HTTPError as exc:  # noqa: PERF203
+        if no_think and exc.code in (400, 404, 422) and "chat_template_kwargs" in payload:
+            payload.pop("chat_template_kwargs")
+            resp = _post("/chat/completions", payload)
+        else:
+            raise
+
+    content = resp["choices"][0]["message"]["content"]
+    return _strip_reasoning(content) if no_think else content.strip()
 
 
 class OpenWeightsLLM:

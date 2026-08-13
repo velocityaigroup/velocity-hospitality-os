@@ -35,13 +35,15 @@ class SOPCoachAgent(Agent):
         embeddings: Embeddings | None = None,
         llm: LLM | None = None,
         top_k: int = 3,
-        min_overlap: int = 1,
+        min_overlap: int = 2,
     ):
         self._retriever = Retriever(embeddings or get_embeddings())
         self._llm = llm or get_llm()
         self.top_k = top_k
-        # Minimum content-token overlap between question and retrieved SOPs for
-        # the agent to answer. Below this it refuses (grounding guardrail).
+        # Minimum number of distinct content-token matches between the question and a
+        # retrieved SOP for the agent to answer. Requiring >=2 topical terms (not one
+        # incidental word like "weather" or "stock") is what makes the grounding
+        # guardrail reliably refuse out-of-scope questions instead of hallucinating.
         self.min_overlap = min_overlap
 
     def evaluate(self, ctx: Context) -> list[Recommendation]:
@@ -51,9 +53,12 @@ class SOPCoachAgent(Agent):
 
         self._retriever.ingest(ctx.sops or {})
         hits = self._retriever.query(question, k=self.top_k)
-        contexts = [h.text for h in hits]
 
-        # Guardrail: refuse rather than answer when nothing relevant was retrieved.
+        # Use the FULL text of each retrieved SOP as the context — for both the
+        # grounding decision AND the answer — so a fact in a different chunk of the
+        # right SOP isn't lost (retrieval de-dups to one best chunk per SOP). SOPs are
+        # small, so passing the whole matched SOP is cheap and improves answer quality.
+        contexts = [str(ctx.sops.get(h.doc_id, h.text)) for h in hits]
         grounded = overlap_score(question, contexts) >= self.min_overlap
         if not grounded:
             return [Recommendation(

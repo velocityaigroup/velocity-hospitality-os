@@ -1,0 +1,159 @@
+{
+  "tenant": "sunset-boutique-svg",
+  "event_count": 11,
+  "events": [
+    {
+      "seq": 1,
+      "ts": "2026-08-13T08:38:02+00:00",
+      "tenant": "sunset-boutique-svg",
+      "agent": "sop_coach",
+      "phase": "operate",
+      "summary": "Per the property SOP: Mojito: 50ml white rum, 8 mint, 25ml lime, 2 tsp sugar, top soda. Jigger every pour.",
+      "risk": "info",
+      "decision": "approved",
+      "rationale": "Answer grounded in retrieved property SOPs (RAG).",
+      "sources": [
+        "bev.mojito"
+      ],
+      "action_type": "answer"
+    },
+    {
+      "seq": 2,
+      "ts": "2026-08-13T08:38:02+00:00",
+      "tenant": "sunset-boutique-svg",
+      "agent": "hr_onboarding",
+      "phase": "operate",
+      "summary": "Request missing documents from Ana P.: work_permit, food_handler_cert",
+      "risk": "requires_approval",
+      "decision": "pending",
+      "rationale": "Preboarding incomplete; documents required before start date.",
+      "sources": [],
+      "action_type": "request_documents"
+    },
+    {
+      "seq": 3,
+      "ts": "2026-08-13T08:38:02+00:00",
+      "tenant": "sunset-boutique-svg",
+      "agent": "hr_onboarding",
+      "phase": "operate",
+      "summary": "Work permit for Ana P. expires 2026-08-20 \u2014 escalate renewal",
+      "risk": "requires_approval",
+      "decision": "pending",
+      "rationale": "Permit/visa expires at or near the start date.",
+      "sources": [],
+      "action_type": "escalate_permit"
+    },
+    {
+      "seq": 4,
+      "ts": "2026-08-13T08:38:02+00:00",
+      "tenant": "sunset-boutique-svg",
+      "agent": "hr_onboarding",
+      "phase": "operate",
+      "summary": "Assign onboarding training to Ana P.",
+      "risk": "low",
+      "decision": "approved",
+      "rationale": "Role-specific preboarding training so the hire arrives ready.",
+      "sources": [],
+      "action_type": "assign_training"
+    },
+    {
+      "seq": 5,
+      "ts": "2026-08-13T08:38:02+00:00",
+      "tenant": "sunset-boutique-svg",
+      "agent": "hr_onboarding",
+      "phase": "operate",
+      "summary": "Assign onboarding training to Marko D.",
+      "risk": "low",
+      "decision": "approved",
+      "rationale": "Role-specific preboarding training so the hire arrives ready.",
+      "sources": [],
+      "action_type": "assign_training"
+    },
+    {
+      "seq": 6,
+      "ts": "2026-08-13T08:38:02+00:00",
+      "tenant": "sunset-boutique-svg",
+      "agent": "hr_onboarding",
+      "phase": "operate",
+      "summary": "Daily briefing (5 item(s) need attention):",
+      "risk": "info",
+      "decision": "approved",
+      "rationale": "Cross-hire preboarding readiness roll-up for HR.",
+      "sources": [],
+      "action_type": "onboarding_digest"
+    },
+    {
+      "seq": 7,
+      "ts": "2026-08-13T08:38:02+00:00",
+      "tenant": "sunset-boutique-svg",
+      "agent": "work_order",
+      "phase": "operate",
+      "summary": "P1 \u00b7 WO-501 (safety): elevator 2 stalling intermittently between floors \u2192 Engineering / Duty Manager \u2014 approval required",
+      "risk": "requires_approval",
+      "decision": "pending",
+      "rationale": "Priority P1, SLA 1h. Safety-critical \u2014 held for a human before dispatch. Governed by eng.lift_safety.",
+      "sources": [
+        "eng.lift_safety"
+      ],
+      "action_type": "work_order"
+    },
+    {
+      "seq": 8,
+      "ts": "2026-08-13T08:38:02+00:00",
+      "tenant": "sunset-boutique-svg",
+      "agent": "work_order",
+      "phase": "operate",
+      "summary": "P2 \u00b7 WO-502 (vip): suite 610 AC not cooling, VIP guest in house \u2192 Duty Manager \u2014 approval required",
+      "risk": "requires_approval",
+      "decision": "pending",
+      "rationale": "Priority P2, SLA 4h. Touches an in-house guest \u2014 held for Duty Manager review. Governed by eng.hvac.",
+      "sources": [
+        "eng.hvac"
+      ],
+      "action_type": "work_order"
+    },
+    {
+      "seq": 9,
+      "ts": "2026-08-13T08:38:02+00:00",
+      "tenant": "sunset-boutique-svg",
+      "agent": "work_order",
+      "phase": "operate",
+      "summary": "P3 \u00b7 WO-503 (comfort): lobby restroom tap dripping \u2192 Maintenance \u2014 auto-route \u00b7 SLA 24h",
+      "risk": "low",
+      "decision": "approved",
+      "rationale": "Priority P3, SLA 24h. Governed by eng.minor.",
+      "sources": [
+        "eng.minor"
+      ],
+      "action_type": "work_order"
+    },
+    {
+      "seq": 10,
+      "ts": "2026-08-13T08:38:02+00:00",
+      "tenant": "sunset-boutique-svg",
+      "agent": "work_order",
+      "phase": "operate",
+      "summary": "P4 \u00b7 WO-504 (cosmetic): scuff mark on the floor 3 corridor wall \u2192 Maintenance \u2014 auto-route \u00b7 SLA 72h",
+      "risk": "low",
+      "decision": "approved",
+      "rationale": "Priority P4, SLA 72h. Governed by eng.minor.",
+      "sources": [
+        "eng.minor"
+      ],
+      "action_type": "work_order"
+    },
+    {
+      "seq": 11,
+      "ts": "2026-08-13T08:38:02+00:00",
+      "tenant": "sunset-boutique-svg",
+      "agent": "executive_intelligence",
+      "phase": "report",
+      "summary": "Daily briefing (13 item(s) need attention):",
+      "risk": "info",
+      "decision": "approved",
+      "rationale": "Daily roll-up synthesized from operational alerts and this cycle's agent activity (actions taken + items awaiting approval).",
+      "sources": [],
+      "action_type": "briefing"
+    }
+  ]
+}

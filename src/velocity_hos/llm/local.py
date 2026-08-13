@@ -35,14 +35,31 @@ class LocalEmbeddings:
         return [v / norm for v in vec]
 
 
+_SENT = re.compile(r"(?<=[.!?])\s+|\n+")
+
+
 class LocalLLM:
     def answer(self, question: str, contexts: list[str]) -> str:
         if not contexts:
             return ("I couldn't find an SOP covering that. Please check with your "
                     "department head or the duty manager.")
-        top = contexts[0].strip().replace("\n", " ")
-        snippet = (top[:400] + "…") if len(top) > 400 else top
-        return f"Per the property SOP: {snippet}"
+        # Extractive answer: return the sentence(s) from the retrieved SOP most
+        # relevant to the question (by content-token overlap), not just the opening
+        # lines — so the actual answer fact isn't truncated away. (The production
+        # backends generate a natural-language answer from the same context.)
+        qtokens = set(_tokens(question)) - {"how", "what", "much", "many", "does", "the", "for"}
+        sentences: list[str] = []
+        for ctx in contexts[:2]:
+            sentences += [s.strip() for s in _SENT.split(ctx) if len(s.strip()) > 3]
+        if not sentences:
+            return f"Per the property SOP: {contexts[0].strip()[:300]}"
+        scored = sorted(
+            enumerate(sentences),
+            key=lambda it: (len(qtokens & set(_tokens(it[1]))), -it[0]),
+            reverse=True,
+        )
+        best = [s for _, s in sorted(scored[:2], key=lambda it: it[0])]
+        return "Per the property SOP: " + " ".join(best).replace("\n", " ")
 
     def summarize(self, instruction: str, sections: dict[str, list[str]]) -> str:
         total = sum(len(v) for v in sections.values())
