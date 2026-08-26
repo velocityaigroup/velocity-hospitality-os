@@ -16,6 +16,8 @@ staff — it will say "I don't have an SOP for that" rather than invent policy.
 """
 from __future__ import annotations
 
+import re
+
 from velocity_hos.llm import LLM, Embeddings, get_embeddings, get_llm
 from velocity_hos.rag import Retriever, overlap_score
 
@@ -25,6 +27,37 @@ _REFUSAL = (
     "I couldn't find an SOP covering that. Please check with your department head "
     "or the duty manager."
 )
+
+
+def _mentions(question_lower: str, phrase: str) -> bool:
+    """Word-boundary match for a single word; substring match for a phrase."""
+    if " " in phrase or "-" in phrase:
+        return phrase in question_lower
+    return re.search(rf"\b{re.escape(phrase)}\b", question_lower) is not None
+
+
+def match_known_gap(question: str, gaps: list[dict]) -> dict | None:
+    """Return the declared knowledge gap this question falls into, if any.
+
+    A property can declare gaps: subjects it has NOT yet given us documented answers
+    for (rates, check-in times, transfer prices...). When a question lands in a
+    declared gap the agent says so explicitly and routes to the responsible human,
+    instead of answering from an adjacent SOP that merely shares vocabulary.
+
+    This is a governance feature, not a retrieval trick: silence about what we do not
+    know is what makes the assistant safe to put in front of a guest. A gap fires only
+    when the question carries BOTH the gap's subject and the kind of detail it asks
+    for, so questions the property HAS published answers to are unaffected.
+    """
+    q = (question or "").lower()
+    for gap in gaps or []:
+        terms = gap.get("terms") or []
+        topics = gap.get("topic") or []
+        if not terms or not topics:
+            continue
+        if any(_mentions(q, t) for t in terms) and any(_mentions(q, t) for t in topics):
+            return gap
+    return None
 
 
 class SOPCoachAgent(Agent):
@@ -50,6 +83,26 @@ class SOPCoachAgent(Agent):
         question = ctx.inputs.get("question")
         if not question:
             return []
+
+        # Declared knowledge gap -> refuse by name, before retrieval can find an
+        # adjacent SOP that merely shares vocabulary with the question.
+        gap = match_known_gap(question, ctx.inputs.get("known_gaps") or [])
+        if gap is not None:
+            owner = gap.get("owner") or "the duty manager"
+            return [Recommendation(
+                agent=self.name,
+                summary=(
+                    f"I don't have a documented answer for that — {gap['gap'].lower()}. "
+                    f"Please check with {owner}, who can confirm it."
+                ),
+                risk=RiskLevel.INFO,
+                proposed_action={"type": "refusal", "question": question,
+                                 "reason": "declared_knowledge_gap",
+                                 "gap_id": gap.get("gid"), "gap": gap.get("gap")},
+                rationale=("The property has not yet supplied documentation on this "
+                           "subject; answering would mean inventing policy."),
+                sources=[],
+            )]
 
         self._retriever.ingest(ctx.sops or {})
         hits = self._retriever.query(question, k=self.top_k)

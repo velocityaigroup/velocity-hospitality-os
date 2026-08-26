@@ -62,6 +62,14 @@ class SOP:
     priority: str = "standard"        # critical | high | standard
     version: str = "1.0"
     approval_status: str = "approved" # approved | draft | in_review
+    # --- provenance (per-property governance) ---
+    # "authored"           - written by Velocity for the demo corpus
+    # "unconfirmed"        - seeded from a public source, NOT yet confirmed by the operator
+    # "operator_confirmed" - the property has confirmed this fact in writing
+    # An agent may state an unconfirmed fact only with its provenance visible; nothing
+    # is promoted to operator_confirmed without the operator saying so.
+    confidence: str = "authored"
+    source: str = ""                  # where the content came from (page key / document)
 
     # ------------------------------------------------------------------ helpers
     @staticmethod

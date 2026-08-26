@@ -1,0 +1,280 @@
+{
+  "property": "Firefly Estate Bequia",
+  "records": 24,
+  "departments": 9,
+  "declared_gaps": 11,
+  "operator_confirmed_records": 0,
+  "retrieval_at_1": 1.0,
+  "gap_refusal": 1.0,
+  "out_of_scope_refusal": 1.0,
+  "overall": 1.0,
+  "cases": 38,
+  "rows": [
+    {
+      "kind": "grounded",
+      "question": "how much is the estate tour?",
+      "expected": "FF-503",
+      "got": "FF-503",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "what day does the plantation tour not run?",
+      "expected": "FF-503",
+      "got": "FF-503",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "what is the private tour price?",
+      "expected": "FF-504",
+      "got": "FF-504",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "how much does golf cost and are clubs included?",
+      "expected": "FF-501",
+      "got": "FF-501",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "is croquet free?",
+      "expected": "FF-502",
+      "got": "FF-502",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "who runs the diving?",
+      "expected": "FF-505",
+      "got": "FF-505",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "is breakfast included?",
+      "expected": "FF-205",
+      "got": "FF-205",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "is laundry included in the room?",
+      "expected": "FF-205",
+      "got": "FF-205",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "do you cater for special diets?",
+      "expected": "FF-402",
+      "got": "FF-402",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "can non residents eat at the restaurant?",
+      "expected": "FF-401",
+      "got": "FF-401",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "how much deposit do I pay when booking?",
+      "expected": "FF-301",
+      "got": "FF-301",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "can I cancel and get a refund?",
+      "expected": "FF-302",
+      "got": "FF-302",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "what happens if I arrive late?",
+      "expected": "FF-302",
+      "got": "FF-302",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "which credit cards do you accept?",
+      "expected": "FF-303",
+      "got": "FF-303",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "is tipping expected?",
+      "expected": "FF-605",
+      "got": "FF-605",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "is there a ferry from Barbados?",
+      "expected": "FF-604",
+      "got": "FF-604",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "where is the hotel and how far is the dock?",
+      "expected": "FF-101",
+      "got": "FF-101",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "how old is the sugar mill?",
+      "expected": "FF-102",
+      "got": "FF-102",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "which rooms are on the upper floor?",
+      "expected": "FF-201",
+      "got": "FF-201",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "is there wifi in the rooms?",
+      "expected": "FF-603",
+      "got": "FF-603",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "what sockets do you use, do I need an adaptor?",
+      "expected": "FF-603",
+      "got": "FF-603",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "are there mosquitoes or malaria?",
+      "expected": "FF-602",
+      "got": "FF-602",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "are there dogs on the property?",
+      "expected": "FF-602",
+      "got": "FF-602",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "tell me about the beach and sand flies",
+      "expected": "FF-601",
+      "got": "FF-601",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "does the villa have a private pool?",
+      "expected": "FF-204",
+      "got": "FF-204",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "does the estate cottage suit a family with children?",
+      "expected": "FF-203",
+      "got": "FF-203",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "what is the number to book a table?",
+      "expected": "FF-701",
+      "got": "FF-701",
+      "ok": true
+    },
+    {
+      "kind": "grounded",
+      "question": "how should our messages to guests sound?",
+      "expected": "FF-901",
+      "got": "FF-901",
+      "ok": true
+    },
+    {
+      "kind": "gap",
+      "question": "what is the room rate for a week in March?",
+      "expected": "G1",
+      "got": "G1",
+      "ok": true
+    },
+    {
+      "kind": "gap",
+      "question": "how much is the villa per night?",
+      "expected": "G1",
+      "got": "G1",
+      "ok": true
+    },
+    {
+      "kind": "gap",
+      "question": "what time is dinner served?",
+      "expected": "G2",
+      "got": "G2",
+      "ok": true
+    },
+    {
+      "kind": "gap",
+      "question": "what time can I check in?",
+      "expected": "G3",
+      "got": "G3",
+      "ok": true
+    },
+    {
+      "kind": "gap",
+      "question": "how much is a taxi from the airport?",
+      "expected": "G4",
+      "got": "G4",
+      "ok": true
+    },
+    {
+      "kind": "gap",
+      "question": "what is your tripadvisor rating?",
+      "expected": "G9",
+      "got": "G9",
+      "ok": true
+    },
+    {
+      "kind": "out_of_scope",
+      "question": "what is the capital of France?",
+      "expected": "refuse",
+      "got": "REFUSED",
+      "ok": true
+    },
+    {
+      "kind": "out_of_scope",
+      "question": "tell me a joke about penguins",
+      "expected": "refuse",
+      "got": "REFUSED",
+      "ok": true
+    },
+    {
+      "kind": "out_of_scope",
+      "question": "what's the weather forecast tomorrow?",
+      "expected": "refuse",
+      "got": "REFUSED",
+      "ok": true
+    },
+    {
+      "kind": "out_of_scope",
+      "question": "how do I reset my email password?",
+      "expected": "refuse",
+      "got": "REFUSED",
+      "ok": true
+    }
+  ]
+}

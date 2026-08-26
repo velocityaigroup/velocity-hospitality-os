@@ -50,7 +50,13 @@ class LocalLLM:
         qtokens = set(_tokens(question)) - {"how", "what", "much", "many", "does", "the", "for"}
         sentences: list[str] = []
         for ctx in contexts[:2]:
-            sentences += [s.strip() for s in _SENT.split(ctx) if len(s.strip()) > 3]
+            # Skip the retrieval header ("SOP-ID — Title (Department)") and the
+            # keyword line: neither is an answer, and both match question terms
+            # strongly enough to crowd out the sentence that actually answers.
+            lines = [ln for ln in str(ctx).splitlines()
+                     if ln.strip() and not ln.startswith("Keywords:")][1:]
+            for ln in lines:
+                sentences += [s.strip() for s in _SENT.split(ln) if len(s.strip()) > 3]
         if not sentences:
             return f"Per the property SOP: {contexts[0].strip()[:300]}"
         scored = sorted(

@@ -45,7 +45,35 @@ Inputs → Agents → Human Approval → Actions → Systems → Reporting → (
 >
 > Every recommendation and the decision taken on it is written to an inspectable, timestamped **decision trail** (`demo/decision_trail.md` / `.json`) — the artifact you open to answer "why did the system do that?".
 >
-> Try it: `python ui/server.py` (web UI at localhost:8080) · `python demo/run_demo.py` (end-to-end loop) · `python eval/run_eval.py` (measured accuracy).
+> Try it: `python ui/server.py` (console at localhost:8080) · `python demo/run_demo.py` (end-to-end loop) · `python eval/run_eval.py` (measured accuracy).
+
+## Multi-property — and honest about what it knows
+Every property is its own tenant: its own knowledge base, its own citations, its own declared gaps. Corpora are never merged, so one property's content can never leak into another's answers.
+
+| Property | Corpus | Provenance |
+|---|---|---|
+| **Azure Bay Resort** | 46 authored SOPs · 16 departments | Original content written by Velocity to international luxury standards. Operational figures illustrative. |
+| **Firefly Estate Bequia** *(Saint Vincent & the Grenadines)* | 24 records · 9 departments · **11 declared knowledge gaps** | **Seeded from the property's own public website. Not a live or paid pilot, and not operator-confirmed** — every record is tagged `unconfirmed` with its source page. |
+
+Two guardrails, not one:
+- **Grounding guardrail** — refuses when no record supports the question.
+- **Declared-gap guard** — when a property tells us a subject is undocumented (rates, service times, transfer prices), the assistant refuses **by name** — *"no published room rates, please check with the owner/manager"* — instead of answering from a neighbouring record that shares vocabulary. A fact is never promoted to `operator_confirmed` without the operator.
+
+Measured separately, because they are different corpora:
+
+| | Cases | Retrieval@1 | Grounding / gap refusal | Out-of-scope refusal |
+|---|---|---|---|---|
+| Azure Bay (`eval/run_eval.py`) | 62 | **95%** | **100%** | **100%** |
+| Firefly seed (`eval/firefly_eval.py`) | 38 | **100%** | **100%** | **100%** |
+
+*The Firefly figure is on a 38-case public-source seed and is not comparable to the 62-case authored corpus.*
+
+## The console
+`python ui/server.py` → http://localhost:8080. Seven views (Dashboard · SOP Coach · Operations Loop · Approvals · Knowledge Base · Knowledge Gaps · Evidence), a property switcher, and a one-click demo reset.
+
+Everything is computed server-side by the same agents the tests and the evaluation run against — there is no client-side copy of the product. **Approvals are real**: approving a held item writes the human decision and the execution to the audit trail, creates an assigned task with an owner and an SLA, and re-runs Executive Intelligence so the item moves out of *Awaiting your approval* and into *Actions taken* in the GM briefing. That is the loop closing, in front of you.
+
+It runs offline — standard library only, no network, no credentials — so it is its own demo fallback. See [`docs/DEMO_RUNBOOK.md`](docs/DEMO_RUNBOOK.md) and [`docs/AUDIT_2026-08-20.md`](docs/AUDIT_2026-08-20.md).
 
 ## Model-agnostic & self-hosted
 The LLM is a **swappable provider behind one interface** — all retrieval, grounding, citations, evaluation and workflow logic are model-independent. Switch models with a single env var; no application code changes.
@@ -82,8 +110,9 @@ src/velocity_hos/
   llm/             # provider abstraction: local · openweights (vLLM) · bedrock
   rag/             # chunking, vector store, retriever, grounding guardrail
   data/            # model-independent SOP knowledge seed
-ui/                # dependency-free local web UI (server.py)
-eval/              # SOP Coach evaluation harness + golden set
+  knowledge/       # per-property corpora + registry (authored demo · Firefly seed + gaps)
+ui/                # dependency-free live console (server.py) — 7 views, multi-property
+eval/              # evaluation harnesses + golden sets (one per property corpus)
 scripts/           # bedrock / open-weights smoke tests
 infra/             # AWS SAM (Lambda, API Gateway, DynamoDB)
 demo/              # end-to-end hero-loop demo
@@ -95,7 +124,12 @@ tests/             # pytest suite (loop, approval, SOP Coach, eval, providers)
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-pytest
+pytest                                            # 63 tests
+ruff check .
+python eval/run_eval.py                           # authored corpus  — 95% / 100% / 100%
+python eval/firefly_eval.py                       # Firefly seed     — 100% / 100% / 100%
+python demo/run_demo.py --property firefly-bequia # end-to-end loop, four agents
+python ui/server.py                               # console at localhost:8080
 ```
 
 ## Status

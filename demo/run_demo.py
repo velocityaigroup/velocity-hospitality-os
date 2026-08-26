@@ -1,6 +1,7 @@
 """Velocity Hospitality OS — end-to-end hero demo.
 
-    python demo/run_demo.py
+    python demo/run_demo.py                            # authored demonstration resort
+    python demo/run_demo.py --property firefly-bequia  # the design-partner property
 
 Runs ONE execution loop across four supervised agents on a single property's
 operational inputs, and shows the whole spine live:
@@ -34,6 +35,7 @@ from velocity_hos.agents.executive_intelligence import ExecutiveIntelligenceAgen
 from velocity_hos.agents.hr_onboarding import HROnboardingAgent
 from velocity_hos.agents.sop_coach import SOPCoachAgent
 from velocity_hos.agents.work_order import WorkOrderAgent
+from velocity_hos.knowledge import get_property, property_index
 from velocity_hos.orchestration.approval import ApprovalDecision, ApprovalGate
 from velocity_hos.orchestration.loop import ExecutionLoop
 
@@ -42,65 +44,42 @@ def rule(title: str) -> None:
     print("\n" + "=" * 68 + f"\n  {title}\n" + "=" * 68)
 
 
-# --- Property SOPs (sanitized) ------------------------------------------------
-SOPS = {
-    "bev.mojito": "Mojito: 50ml white rum, 8 mint, 25ml lime, 2 tsp sugar, top soda. Jigger every pour.",
-    "hr.onboarding_docs": "New hires need passport, work permit, contract, tax form. F&B/kitchen also need a food handler certificate.",
-    "hr.permit": "Work permits must stay valid through the contract. HR escalates any permit expiring within 30 days of the start date.",
-    "eng.lift_safety": "Lift/elevator faults that can trap or endanger guests are safety-critical: take the car out of service, call the duty engineer, and raise a work order within 1 hour. Guest-impacting or safety defects require Duty Manager approval before dispatch.",
-    "eng.hvac": "Guest-room air-conditioning and climate faults affecting an in-house guest are prioritised same day; a VIP-occupied room is escalated to the Duty Manager.",
-    "eng.minor": "Routine minor repairs such as a dripping tap or a cosmetic scuff mark are logged and scheduled within the standard maintenance cycle.",
-}
-
-# --- A day's operational inputs for one property ------------------------------
-INPUTS = {
-    # a floor staff question for the SOP Coach
-    "question": "how much rum goes in a mojito?",
-    # onboarding pipeline for the HR agent (one hire has a problem)
-    "new_hires": [
-        {"id": "H-101", "name": "Ana P.", "role": "f&b",
-         "documents": ["passport", "contract", "tax_form"],   # missing work_permit + food handler cert
-         "permit_expiry": "2026-08-20", "start_date": "2026-08-10"},   # permit expires near start
-        {"id": "H-102", "name": "Marko D.", "role": "front office",
-         "documents": ["passport", "work_permit", "contract", "tax_form"],
-         "start_date": "2026-08-12"},                          # clean — ready to start
-    ],
-    # maintenance / guest-request tickets for the Work Order agent (mixed urgency)
-    "tickets": [
-        {"id": "WO-501", "category": "safety",
-         "description": "elevator 2 stalling intermittently between floors"},
-        {"id": "WO-502", "category": "vip",
-         "description": "suite 610 AC not cooling, VIP guest in house"},
-        {"id": "WO-503", "category": "comfort",
-         "description": "lobby restroom tap dripping"},
-        {"id": "WO-504", "category": "cosmetic",
-         "description": "scuff mark on the floor 3 corridor wall"},
-    ],
-    # alerts feeding the Executive Intelligence briefing
-    "signals": {
-        "risks": ["Storm warning Thursday PM — pool & watersports"],
-        "staffing_alerts": ["F&B short 2 covers for Friday peak"],
-        "revenue_alerts": ["Cabanas unbooked for the weekend (premium inventory idle)"],
-        "compliance_alerts": ["1 work permit expiring within 30 days"],
-    },
-}
+# The property's own knowledge base and its day of operational inputs both come from
+# the property registry (``velocity_hos.knowledge.properties``), so the CLI demo, the
+# console and the tests all run on exactly the same content — and the dates in the
+# onboarding pipeline are generated relative to today, never hard-coded.
 
 
-def main() -> int:
-    # top_k=1 for the demo: the KB now spans several departments, so answer from the
-    # single best-matched SOP for a clean, correctly-cited response on screen.
+def main(argv: list[str] | None = None) -> int:
+    argv = list(argv if argv is not None else sys.argv[1:])
+    key = None
+    if "--property" in argv:
+        key = argv[argv.index("--property") + 1]
+    if key in ("--help", "-h") or "--help" in argv:
+        print("usage: python demo/run_demo.py [--property KEY]")
+        print("  properties: " + ", ".join(p["key"] for p in property_index()))
+        return 0
+
+    prop = get_property(key)
+    inputs = prop.inputs()
+
+    # top_k=1 for the demo: the KB spans many departments, so answer from the single
+    # best-matched record for a clean, correctly-cited response on screen.
     agents = [SOPCoachAgent(top_k=1), HROnboardingAgent(), WorkOrderAgent(),
               ExecutiveIntelligenceAgent()]
     gate = ApprovalGate()
     loop = ExecutionLoop(agents, gate)
-    ctx = Context(tenant_id="sunset-boutique-svg", inputs=INPUTS, sops=SOPS)
+    ctx = Context(tenant_id=prop.tenant_id, inputs=inputs, sops=prop.retrieval_docs())
 
     rule("1 · INPUTS  (one property, one day of operational exhaust)")
-    print(f"  Tenant: {ctx.tenant_id}")
-    print(f"  Staff question: {INPUTS['question']!r}")
-    print(f"  New hires in pipeline: {len(INPUTS['new_hires'])}")
-    print(f"  Maintenance tickets: {len(INPUTS['tickets'])}")
-    print(f"  Operational alerts: {sum(len(v) for v in INPUTS['signals'].values())}")
+    print(f"  Property: {prop.name} — {prop.location}")
+    print(f"  Provenance: {prop.kind}")
+    print(f"  Knowledge base: {len(prop.sops)} records · {len(prop.departments())} departments"
+          + (f" · {len(prop.gaps)} declared gaps" if prop.gaps else ""))
+    print(f"  Staff question: {inputs['question']!r}")
+    print(f"  New hires in pipeline: {len(inputs['new_hires'])}")
+    print(f"  Maintenance tickets: {len(inputs['tickets'])}")
+    print(f"  Operational alerts: {sum(len(v) for v in inputs['signals'].values())}")
 
     rule("2 · AGENTS  (each reasons against the property's own standards)")
     result = loop.run(ctx)
@@ -150,10 +129,11 @@ def main() -> int:
     # the human/automatic decision, timestamped and ordered.
     if result.trail is not None:
         here = Path(__file__).resolve().parent
-        (here / "decision_trail.md").write_text(result.trail.to_markdown(), encoding="utf-8")
-        (here / "decision_trail.json").write_text(result.trail.to_json(), encoding="utf-8")
+        stem = "decision_trail" if prop.key == "azure-bay" else f"decision_trail_{prop.key}"
+        (here / f"{stem}.md").write_text(result.trail.to_markdown(), encoding="utf-8")
+        (here / f"{stem}.json").write_text(result.trail.to_json(), encoding="utf-8")
         counts = result.trail.counts()
-        print("  Decision trail exported → demo/decision_trail.md · decision_trail.json")
+        print(f"  Decision trail exported → demo/{stem}.md · {stem}.json")
         print(f"  Trail roll-up: {counts}")
     print("  Every recommendation, decision, and action is recorded for review.\n")
 

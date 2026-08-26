@@ -2,7 +2,12 @@
 from __future__ import annotations
 
 from .corpus import DEMO_SOPS, load_demo_kb
+from .firefly import FIREFLY_GAPS, FIREFLY_SOPS, firefly_departments
 from .evidence import FINDINGS, Finding, evidence_summary, live_findings
+from .properties import (
+    AZURE_BAY, DEFAULT_PROPERTY, FIREFLY, PROPERTIES, Property,
+    get_property, property_index,
+)
 from .schema import SOP, DecisionBranch, QuizItem, retrieval_docs
 
 
@@ -28,4 +33,7 @@ __all__ = [
     "SOP", "QuizItem", "DecisionBranch", "retrieval_docs",
     "DEMO_SOPS", "load_demo_kb", "demo_retrieval_docs", "departments",
     "FINDINGS", "Finding", "live_findings", "evidence_summary",
+    "FIREFLY_SOPS", "FIREFLY_GAPS", "firefly_departments",
+    "Property", "PROPERTIES", "DEFAULT_PROPERTY", "AZURE_BAY", "FIREFLY",
+    "get_property", "property_index",
 ]
