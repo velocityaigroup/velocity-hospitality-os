@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 import urllib.error
 import urllib.request
 
@@ -48,16 +49,60 @@ def _strip_reasoning(text: str) -> str:
     return text.strip()
 
 
-def _post(path: str, payload: dict, timeout: float = 60.0) -> dict:
-    """POST JSON to the OpenAI-compatible server and return the parsed response."""
+# Transient upstream conditions on a shared inference gateway. These are worth
+# retrying; a 400/404/422 (bad request, wrong model, unsupported field) is not,
+# and must surface immediately so the caller's own fallback logic can run.
+_RETRY_STATUS = frozenset({429, 500, 502, 503, 504})
+_MAX_ATTEMPTS = 3
+_BACKOFF_SECONDS = (1.0, 3.0)
+
+
+def _retry_after(exc: urllib.error.HTTPError) -> float | None:
+    """Honour a Retry-After header when the gateway sends one (seconds only)."""
+    try:
+        value = exc.headers.get("Retry-After") if exc.headers else None
+        return max(0.0, min(30.0, float(value))) if value else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _post(path: str, payload: dict, timeout: float = 90.0) -> dict:
+    """POST JSON to the OpenAI-compatible server and return the parsed response.
+
+    Retries transient gateway failures with backoff. A shared gateway will
+    occasionally return 502/503 or drop a long generation; one such blip should
+    not end a four-agent cycle that is otherwise working.
+    """
     url = settings.openweights_base_url.rstrip("/") + path
     data = json.dumps(payload).encode("utf-8")
     headers = {"Content-Type": "application/json"}
     if settings.openweights_api_key:
         headers["Authorization"] = f"Bearer {settings.openweights_api_key}"
-    req = urllib.request.Request(url, data=data, headers=headers, method="POST")
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+
+    last_exc: Exception | None = None
+    for attempt in range(_MAX_ATTEMPTS):
+        req = urllib.request.Request(url, data=data, headers=headers, method="POST")
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            if exc.code not in _RETRY_STATUS or attempt == _MAX_ATTEMPTS - 1:
+                raise
+            last_exc = exc
+            delay = _retry_after(exc) or _BACKOFF_SECONDS[attempt]
+        except (urllib.error.URLError, TimeoutError) as exc:
+            if attempt == _MAX_ATTEMPTS - 1:
+                raise
+            last_exc = exc
+            delay = _BACKOFF_SECONDS[attempt]
+        print(
+            f"     [retry] {type(last_exc).__name__}: {last_exc} "
+            f"- attempt {attempt + 1}/{_MAX_ATTEMPTS}, retrying in {delay:.0f}s",
+            flush=True,
+        )
+        time.sleep(delay)
+
+    raise RuntimeError("unreachable")  # pragma: no cover
 
 
 def _chat(system: str, user: str, max_tokens: int = 512, temperature: float = 0.2) -> str:
