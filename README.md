@@ -124,7 +124,7 @@ tests/             # pytest suite (loop, approval, SOP Coach, eval, providers)
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-pytest                                            # 63 tests
+pytest                                            # 69 tests, offline, ~6s
 ruff check .
 python eval/run_eval.py                           # authored corpus  — 95% / 100% / 100%
 python eval/firefly_eval.py                       # Firefly seed     — 100% / 100% / 100%
