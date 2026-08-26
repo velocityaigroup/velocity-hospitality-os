@@ -25,6 +25,11 @@ thing blocking the highest-value item on your board.
 
 **Never paste the key into a file that gets committed.** It only ever lives in your shell session.
 
+> **One consequence to know about.** Those variables stay set for the life of the window. The
+> test suite is pinned to the offline backend by `tests/conftest.py`, so `pytest` is safe to run
+> from this same window — but any *other* script you run here will talk to the live gateway,
+> not the deterministic stub. When in doubt, open a fresh terminal.
+
 ---
 
 ## Step 2 — Set the five environment variables
