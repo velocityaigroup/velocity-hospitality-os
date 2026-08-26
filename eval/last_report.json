@@ -1,56 +1,344 @@
 {
-  "retrieval_precision": 1.0,
+  "retrieval_precision": 0.9464285714285714,
   "grounding_rate": 1.0,
   "refusal_accuracy": 1.0,
-  "overall": 1.0,
-  "total": 12,
+  "overall": 0.9516129032258065,
+  "total": 62,
   "rows": [
     {
+      "question": "how do I check in a VIP guest?",
+      "expected": "FO-101",
+      "outcome": "FO-101",
+      "pass": true
+    },
+    {
+      "question": "a returning guest is arriving, what's the arrival standard?",
+      "expected": "FO-101",
+      "outcome": "GX-215",
+      "pass": false
+    },
+    {
+      "question": "guest wants to check out late, what do we do?",
+      "expected": "FO-108",
+      "outcome": "FO-108",
+      "pass": true
+    },
+    {
+      "question": "can we give a late checkout?",
+      "expected": "FO-108",
+      "outcome": "FO-108",
+      "pass": true
+    },
+    {
       "question": "how much rum goes in a mojito?",
-      "expected": "bev.mojito",
-      "outcome": "bev.mojito",
+      "expected": "FB-210",
+      "outcome": "FB-210",
       "pass": true
     },
     {
       "question": "what's our target pour cost on cocktails?",
-      "expected": "bev.pour_cost",
-      "outcome": "bev.pour_cost",
+      "expected": "FB-210",
+      "outcome": "FB-210",
       "pass": true
     },
     {
-      "question": "how do I check in a VIP guest?",
-      "expected": "fo.checkin",
-      "outcome": "fo.checkin",
+      "question": "guest wants to upgrade to a premium spirit",
+      "expected": "FB-210",
+      "outcome": "FB-210",
       "pass": true
     },
     {
-      "question": "what time does turndown service start?",
-      "expected": "hk.turndown",
-      "outcome": "hk.turndown",
+      "question": "we double-booked a table, how do we handle it?",
+      "expected": "FB-214",
+      "outcome": "FB-214",
       "pass": true
     },
     {
-      "question": "when do we renew a work permit that's expiring?",
-      "expected": "hr.permit",
-      "outcome": "hr.permit",
+      "question": "who can mark a room as ready?",
+      "expected": "HK-301",
+      "outcome": "HK-301",
+      "pass": true
+    },
+    {
+      "question": "how do we sequence room cleaning when arrivals are waiting?",
+      "expected": "HK-301",
+      "outcome": "HK-301",
       "pass": true
     },
     {
       "question": "which documents does a new kitchen hire need before starting?",
-      "expected": "hr.onboarding_docs",
-      "outcome": "hr.onboarding_docs",
+      "expected": "HR-501",
+      "outcome": "HR-501",
       "pass": true
     },
     {
-      "question": "how do we handle a cabana booking at the pool?",
-      "expected": "rev.cabana",
-      "outcome": "rev.cabana",
+      "question": "when do we renew a work permit that's expiring?",
+      "expected": "HR-501",
+      "outcome": "HR-501",
+      "pass": true
+    },
+    {
+      "question": "when should we capture uniform sizes for a new starter?",
+      "expected": "HR-505",
+      "outcome": "HR-505",
+      "pass": true
+    },
+    {
+      "question": "there's a safety-critical defect, how is it triaged?",
+      "expected": "MN-401",
+      "outcome": "MN-401",
+      "pass": true
+    },
+    {
+      "question": "what's the SLA for a guest-impacting repair?",
+      "expected": "MN-401",
+      "outcome": "MN-401",
+      "pass": true
+    },
+    {
+      "question": "how do we run the preventive maintenance cycle?",
+      "expected": "ENG-410",
+      "outcome": "ENG-410",
+      "pass": true
+    },
+    {
+      "question": "what should the morning briefing lead with?",
+      "expected": "EX-601",
+      "outcome": "EX-601",
       "pass": true
     },
     {
       "question": "what's the first step when a guest complains?",
-      "expected": "guest.recovery",
-      "outcome": "guest.recovery",
+      "expected": "GX-201",
+      "outcome": "GX-201",
+      "pass": true
+    },
+    {
+      "question": "how fast must we acknowledge a complaint?",
+      "expected": "GX-201",
+      "outcome": "GX-201",
+      "pass": true
+    },
+    {
+      "question": "the fire alarm is going off, what do we do?",
+      "expected": "SEC-901",
+      "outcome": "SEC-901",
+      "pass": true
+    },
+    {
+      "question": "can we assume it's a false alarm?",
+      "expected": "SEC-901",
+      "outcome": "SEC-901",
+      "pass": true
+    },
+    {
+      "question": "how do we handle inventory variance at period close?",
+      "expected": "FIN-610",
+      "outcome": "FB-230",
+      "pass": false
+    },
+    {
+      "question": "when do we record internal stock transfers?",
+      "expected": "FIN-610",
+      "outcome": "FIN-610",
+      "pass": true
+    },
+    {
+      "question": "what do we verify before charging a purchase to a room?",
+      "expected": "RET-1301",
+      "outcome": "RET-1301",
+      "pass": true
+    },
+    {
+      "question": "how do we coordinate a large group arrival?",
+      "expected": "RES-701",
+      "outcome": "RES-701",
+      "pass": true
+    },
+    {
+      "question": "how do we handle a VIP birthday?",
+      "expected": "EVT-810",
+      "outcome": "EVT-810",
+      "pass": true
+    },
+    {
+      "question": "what do we check before confirming a spa treatment?",
+      "expected": "SPA-1001",
+      "outcome": "SPA-1001",
+      "pass": true
+    },
+    {
+      "question": "can the pool open if the water chemistry is off?",
+      "expected": "POOL-1101",
+      "outcome": "ENG-420",
+      "pass": false
+    },
+    {
+      "question": "the guest's flight is delayed, what happens to the pickup?",
+      "expected": "TR-1201",
+      "outcome": "TR-1201",
+      "pass": true
+    },
+    {
+      "question": "a guest can't find their luggage, what do we do?",
+      "expected": "FO-115",
+      "outcome": "FO-115",
+      "pass": true
+    },
+    {
+      "question": "we're oversold tonight, how do we relocate a guest?",
+      "expected": "FO-120",
+      "outcome": "FO-120",
+      "pass": true
+    },
+    {
+      "question": "how do we take an in-room dining order?",
+      "expected": "FB-220",
+      "outcome": "FB-220",
+      "pass": true
+    },
+    {
+      "question": "a guest has a nut allergy, how do we handle the food?",
+      "expected": "FB-225",
+      "outcome": "FB-225",
+      "pass": true
+    },
+    {
+      "question": "how do we service an occupied room on a stayover?",
+      "expected": "HK-310",
+      "outcome": "HK-310",
+      "pass": true
+    },
+    {
+      "question": "how does the probation review work?",
+      "expected": "HR-510",
+      "outcome": "HR-510",
+      "pass": true
+    },
+    {
+      "question": "what's the process when an employee leaves?",
+      "expected": "HR-515",
+      "outcome": "HR-515",
+      "pass": true
+    },
+    {
+      "question": "the AC is broken in an occupied room, what do we do?",
+      "expected": "MN-410",
+      "outcome": "MN-410",
+      "pass": true
+    },
+    {
+      "question": "how do we run crisis communication in an incident?",
+      "expected": "EX-610",
+      "outcome": "EX-610",
+      "pass": true
+    },
+    {
+      "question": "how should we respond to an online review?",
+      "expected": "GX-210",
+      "outcome": "GX-210",
+      "pass": true
+    },
+    {
+      "question": "a guest collapsed, what's the medical emergency protocol?",
+      "expected": "SEC-905",
+      "outcome": "SEC-905",
+      "pass": true
+    },
+    {
+      "question": "there's an unattended bag in the lobby, what do we do?",
+      "expected": "SEC-910",
+      "outcome": "SEC-910",
+      "pass": true
+    },
+    {
+      "question": "the power went out, what's the generator procedure?",
+      "expected": "ENG-415",
+      "outcome": "ENG-415",
+      "pass": true
+    },
+    {
+      "question": "a guest is disputing a charge on their bill",
+      "expected": "FIN-615",
+      "outcome": "FIN-615",
+      "pass": true
+    },
+    {
+      "question": "how do we manage overbooking and yield?",
+      "expected": "RES-710",
+      "outcome": "RES-710",
+      "pass": true
+    },
+    {
+      "question": "how do we execute a banquet event order?",
+      "expected": "EVT-815",
+      "outcome": "EVT-815",
+      "pass": true
+    },
+    {
+      "question": "how is spa equipment sanitised between guests?",
+      "expected": "SPA-1005",
+      "outcome": "SPA-1005",
+      "pass": true
+    },
+    {
+      "question": "lightning warning \u2014 when can the pool reopen?",
+      "expected": "POOL-1105",
+      "outcome": "POOL-1105",
+      "pass": true
+    },
+    {
+      "question": "how does valet parking handle guest keys?",
+      "expected": "TR-1205",
+      "outcome": "TR-1205",
+      "pass": true
+    },
+    {
+      "question": "how do we handle a boutique return or exchange?",
+      "expected": "RET-1305",
+      "outcome": "RET-1305",
+      "pass": true
+    },
+    {
+      "question": "how is guest laundry and dry cleaning handled?",
+      "expected": "HK-320",
+      "outcome": "HK-320",
+      "pass": true
+    },
+    {
+      "question": "how do we run the daily revenue and yield review?",
+      "expected": "EX-615",
+      "outcome": "EX-615",
+      "pass": true
+    },
+    {
+      "question": "how do we manage a returning guest's preferences?",
+      "expected": "GX-215",
+      "outcome": "GX-215",
+      "pass": true
+    },
+    {
+      "question": "how do we control legionella in the water systems?",
+      "expected": "ENG-420",
+      "outcome": "ENG-420",
+      "pass": true
+    },
+    {
+      "question": "what's our cancellation and no-show policy?",
+      "expected": "RES-715",
+      "outcome": "RES-715",
+      "pass": true
+    },
+    {
+      "question": "how do we cash up and close the bar?",
+      "expected": "FB-230",
+      "outcome": "FB-230",
+      "pass": true
+    },
+    {
+      "question": "how do we book a guest excursion or activity?",
+      "expected": "TR-1210",
+      "outcome": "TR-1210",
       "pass": true
     },
     {
@@ -73,6 +361,18 @@
     },
     {
       "question": "what's the weather forecast for tomorrow?",
+      "expected": null,
+      "outcome": "REFUSED",
+      "pass": true
+    },
+    {
+      "question": "what's the stock price of Marriott today?",
+      "expected": null,
+      "outcome": "REFUSED",
+      "pass": true
+    },
+    {
+      "question": "write me a poem about the ocean",
       "expected": null,
       "outcome": "REFUSED",
       "pass": true
