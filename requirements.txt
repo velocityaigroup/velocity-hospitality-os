@@ -10,4 +10,4 @@ python-dotenv>=1.0     # local env loading
 
 # Dev
 pytest>=8.0
-ruff>=0.4
+ruff>=0.4,<0.17     # upper bound: 0.16 widened default rules; see [tool.ruff.lint] in pyproject
